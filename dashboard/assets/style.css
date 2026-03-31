@@ -1,0 +1,93 @@
+/* SkyCast Analytics - Premium Light Theme (White Mode) */
+.stApp {
+    background-color: #ffffff;
+    color: #1e293b;
+}
+
+/* Typography for Light Mode */
+p,
+.stMarkdown,
+.stText,
+.stCaption,
+label,
+div[data-testid="stMarkdownContainer"] p,
+.stSelectbox label,
+.stDateInput label {
+    color: #334155 !important;
+    font-weight: 500;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: #0f172a !important;
+    font-weight: 800 !important;
+}
+
+/* Hide Streamlit Default Components */
+header,
+#MainMenu,
+footer {
+    visibility: hidden;
+}
+
+/* Professional Metric Blocks */
+div[data-testid="stMetric"] {
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 24px;
+    border-radius: 16px;
+    backdrop-filter: blur(12px);
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+/* Hero Section - White Mode */
+.hero-container {
+    text-align: center;
+    padding: 80px 0 60px 0;
+    min-height: 50vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.hero-title {
+    font-size: 26rem;
+    font-weight: 1200;
+    line-height: 1.0;
+    margin-bottom: 15px;
+    background: linear-gradient(135deg, #4371f0b8 0%, #3b82f6 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -2px;
+}
+
+.hero-subtitle {
+    font-size: 1.8rem;
+    color: #64748b;
+    font-weight: 500;
+}
+
+/* Premium Button Styling */
+.stButton>button {
+    background: linear-gradient(135deg, #437bf3 0%, #5e86f3 100%);
+    color: white !important;
+    border: none;
+    padding: 18px 48px;
+    font-size: 1.25rem;
+    font-weight: 700;
+    border-radius: 12px;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.stButton>button:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgba(62, 115, 231, 0.25);
+    background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+}
