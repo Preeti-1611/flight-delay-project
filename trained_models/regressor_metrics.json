@@ -1,0 +1,13 @@
+{
+  "Linear Regression": {
+    "RMSE": 16.8846,
+    "R2": 0.7517,
+    "MAE": 13.186
+  },
+  "Random Forest Regressor": {
+    "RMSE": 14.9476,
+    "R2": 0.8054,
+    "MAE": 11.8996
+  },
+  "_best_model": "Random Forest Regressor"
+}

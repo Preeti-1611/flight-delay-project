@@ -7,3 +7,5 @@ streamlit
 joblib
 statsmodels
 category_encoders
+folium
+streamlit-folium

@@ -1,17 +1,19 @@
 import pandas as pd
 import numpy as np
 import joblib
+import json
 import os
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from xgboost import XGBClassifier
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
 
 def train_classifier():
     base_dir = os.path.dirname(os.path.abspath(__file__))
     data_path = os.path.join(base_dir, '..', 'data', 'processed', 'cleaned_flights.csv')
     model_path = os.path.join(base_dir, '..', 'trained_models', 'delay_classifier.pkl')
+    metrics_path = os.path.join(base_dir, '..', 'trained_models', 'classifier_metrics.json')
 
     if not os.path.exists(data_path):
         print(f"Error: {data_path} not found. Run preprocess.py first.")
@@ -50,20 +52,34 @@ def train_classifier():
         prec = precision_score(y_test, y_pred, zero_division=0)
         rec = recall_score(y_test, y_pred, zero_division=0)
         f1 = f1_score(y_test, y_pred, zero_division=0)
+        cm = confusion_matrix(y_test, y_pred).tolist()
         
-        results[name] = {'Accuracy': acc, 'Precision': prec, 'Recall': rec, 'F1': f1}
+        results[name] = {
+            'Accuracy': round(acc, 4), 
+            'Precision': round(prec, 4), 
+            'Recall': round(rec, 4), 
+            'F1': round(f1, 4),
+            'Confusion_Matrix': cm
+        }
         print(f"{name}: Accuracy={acc:.4f}, Precision={prec:.4f}, Recall={rec:.4f}, F1={f1:.4f}")
         
         if f1 > best_score:
             best_score = f1
             best_model = model
+            best_model_name = name
 
+    results['_best_model'] = best_model_name
     print(f"\nBest Model by F1 Score: {best_model.__class__.__name__}")
     
     # Save best model
     os.makedirs(os.path.dirname(model_path), exist_ok=True)
     joblib.dump(best_model, model_path)
     print(f"Model saved to {model_path}")
+    
+    # Save comparison metrics
+    with open(metrics_path, 'w') as f:
+        json.dump(results, f, indent=2)
+    print(f"Metrics saved to {metrics_path}")
 
 if __name__ == "__main__":
     train_classifier()
