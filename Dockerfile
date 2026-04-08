@@ -20,8 +20,13 @@ RUN pip3 install --no-cache-dir -r requirements.txt
 # Copy the rest of the application code
 COPY . .
 
-# Expose the default Streamlit port
+# Expose the default Streamlit port (Render will override if needed)
 EXPOSE 8501
 
-# Command to run the application matching Render's dynamic PORT
-CMD streamlit run dashboard/app.py --server.port=${PORT:-8501} --server.address=0.0.0.0
+# Command to run the application matching Render's deployment rules
+CMD streamlit run dashboard/app.py \
+    --server.port=${PORT:-8501} \
+    --server.address=0.0.0.0 \
+    --server.headless=true \
+    --server.enableCORS=false \
+    --server.enableWebsocketCompression=false
