@@ -13,4 +13,4 @@ venv.bak/
 .idea/
 data/raw/
 tuned_models/
-*.pkl
+# *.pkl
