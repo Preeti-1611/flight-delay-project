@@ -9,3 +9,11 @@ statsmodels
 category_encoders
 folium
 streamlit-folium
+requests
+FlightRadarAPI
+pytesseract
+opencv-python-headless
+imutils
+pdf2image
+Pillow
+python-dateutil

@@ -14,3 +14,4 @@ venv.bak/
 data/raw/
 tuned_models/
 # *.pkl
+.tmp_ocr/

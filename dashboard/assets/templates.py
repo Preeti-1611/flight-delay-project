@@ -6,3 +6,7 @@ HERO_SECTION = """
     <p class="hero-subtitle">Enterprise-grade predictive analytics for flight operations. Powered by historical performance data and real-time meteorological conditions.</p>
 </div>
 """
+
+def get_prediction_reasons(*args, **kwargs):
+    """Stub for prediction reasoning — extend as needed."""
+    return []
