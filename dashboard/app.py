@@ -351,7 +351,7 @@ def render_scan_ticket():
     if not OCR_AVAILABLE:
         st.error(
             "**OCR dependencies are not installed.** "
-            "Please run: `pip install pytesseract opencv-python-headless imutils pdf2image Pillow`"
+            "Please run: `pip install easyocr opencv-python-headless imutils pdf2image Pillow`"
         )
         return
 

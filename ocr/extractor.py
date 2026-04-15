@@ -2,8 +2,8 @@
 OCR Ticket Extractor for SkyCast Analytics
 -------------------------------------------
 Accepts a PIL Image or PDF path, preprocesses with OpenCV,
-runs Tesseract OCR, and uses regex patterns to extract
-flight-related fields (flight number, IATA codes, dates, times).
+runs EasyOCR (pure Python, no Tesseract binary needed) to extract text,
+and uses regex patterns to extract flight-related fields.
 Returns a dict of {field_name: {"value": str, "confidence": float, "low_confidence": bool}}.
 """
 
@@ -18,10 +18,17 @@ except ImportError:
     cv2 = None
 
 try:
+    import easyocr
+    EASYOCR_AVAILABLE = True
+except ImportError:
+    EASYOCR_AVAILABLE = False
+
+try:
     import pytesseract
     from pytesseract import Output
+    TESSERACT_AVAILABLE = True
 except ImportError:
-    pytesseract = None
+    TESSERACT_AVAILABLE = False
 
 try:
     import imutils
@@ -51,6 +58,17 @@ INDIAN_AIRLINES_MAP = {
 }
 
 CONFIDENCE_THRESHOLD = 0.75
+
+# Lazy-loaded EasyOCR reader (loaded once, reused)
+_easyocr_reader = None
+
+
+def _get_easyocr_reader():
+    """Lazy-load the EasyOCR reader so it doesn't slow down import time."""
+    global _easyocr_reader
+    if _easyocr_reader is None:
+        _easyocr_reader = easyocr.Reader(['en'], gpu=False)
+    return _easyocr_reader
 
 
 # ---------------------------------------------------------------------------
@@ -110,33 +128,68 @@ def pdf_to_image(pdf_path: str) -> Image.Image:
 
 
 # ---------------------------------------------------------------------------
-# Tesseract OCR runner
+# OCR runners (EasyOCR primary, Tesseract fallback)
 # ---------------------------------------------------------------------------
+def run_easyocr(processed_img: np.ndarray) -> tuple:
+    """
+    Run EasyOCR on a preprocessed image.
+    Returns (raw_text, avg_confidence).
+    No external binary needed — EasyOCR is pure Python + PyTorch.
+    """
+    reader = _get_easyocr_reader()
+    results = reader.readtext(processed_img)
+
+    # results is a list of (bbox, text, confidence)
+    texts = []
+    confidences = []
+    for (bbox, text, conf) in results:
+        texts.append(text)
+        confidences.append(conf)
+
+    raw_text = " ".join(texts)
+    avg_conf = sum(confidences) / len(confidences) if confidences else 0.0
+
+    return raw_text, avg_conf
+
+
 def run_tesseract(processed_img: np.ndarray) -> tuple:
     """
-    Run Tesseract on a preprocessed image.
-    Returns (raw_text, per_word_data_dict).
+    Fallback: Run Tesseract on a preprocessed image.
+    Requires Tesseract binary installed on the system.
+    Returns (raw_text, avg_confidence).
     """
-    if pytesseract is None:
-        raise ImportError("pytesseract is required. Install it with: pip install pytesseract")
+    if not TESSERACT_AVAILABLE:
+        raise ImportError("pytesseract is not installed.")
 
     # Get per-word confidence data
     data = pytesseract.image_to_data(
         processed_img, output_type=Output.DICT, config="--psm 6"
     )
 
-    # Build raw text from confident words
     raw_text = pytesseract.image_to_string(processed_img, config="--psm 6")
 
-    return raw_text, data
-
-
-def _avg_confidence(data: dict) -> float:
-    """Calculate average Tesseract word confidence (0-1 scale)."""
+    # Average confidence
     confs = [int(c) for c in data.get("conf", []) if int(c) > 0]
-    if not confs:
-        return 0.0
-    return sum(confs) / len(confs) / 100.0
+    avg_conf = (sum(confs) / len(confs) / 100.0) if confs else 0.0
+
+    return raw_text, avg_conf
+
+
+def run_ocr(processed_img: np.ndarray) -> tuple:
+    """
+    Smart OCR runner: tries EasyOCR first (no binary needed),
+    falls back to Tesseract if EasyOCR is unavailable.
+    """
+    if EASYOCR_AVAILABLE:
+        return run_easyocr(processed_img)
+    elif TESSERACT_AVAILABLE:
+        return run_tesseract(processed_img)
+    else:
+        raise ImportError(
+            "No OCR engine found! Install one:\n"
+            "  • pip install easyocr          (recommended, no external binary)\n"
+            "  • pip install pytesseract       (requires Tesseract binary on system)"
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -162,15 +215,12 @@ def _extract_flight_number(text: str) -> dict:
 
 def _extract_iata_codes(text: str) -> list:
     """Extract all potential 3-letter IATA codes."""
-    # Look for 3-letter uppercase sequences
     candidates = re.findall(r'\b([A-Z]{3})\b', text.upper())
-    # Filter to known IATA codes, or keep unknowns with lower confidence
     results = []
     for c in candidates:
         if c in INDIAN_IATA_CODES:
             results.append({"value": c, "confidence": 0.95})
         else:
-            # Could still be a valid international IATA code
             results.append({"value": c, "confidence": 0.60})
     return results
 
@@ -251,7 +301,6 @@ def extract_ticket_fields(source) -> dict:
     """
     # --- Step 1: Get the PIL image ---
     if isinstance(source, str):
-        # It's a file path — assume PDF
         if source.lower().endswith(".pdf"):
             pil_img = pdf_to_image(source)
         else:
@@ -264,9 +313,8 @@ def extract_ticket_fields(source) -> dict:
     # --- Step 2: Preprocess ---
     processed = preprocess_image(pil_img)
 
-    # --- Step 3: Run OCR ---
-    raw_text, word_data = run_tesseract(processed)
-    overall_conf = _avg_confidence(word_data)
+    # --- Step 3: Run OCR (EasyOCR preferred, Tesseract fallback) ---
+    raw_text, overall_conf = run_ocr(processed)
 
     # --- Step 4: Extract fields ---
     flight_no = _extract_flight_number(raw_text)

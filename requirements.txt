@@ -11,9 +11,10 @@ folium
 streamlit-folium
 requests
 FlightRadarAPI
-pytesseract
+easyocr
 opencv-python-headless
 imutils
 pdf2image
 Pillow
 python-dateutil
+# pytesseract          # optional fallback — requires Tesseract binary on system
