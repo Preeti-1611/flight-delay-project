@@ -9,3 +9,9 @@ statsmodels
 category_encoders
 folium
 streamlit-folium
+opencv-python==4.8.0.76
+Pillow>=9.0.0
+PyMuPDF>=1.23.0
+paddleocr==2.8.1
+paddlepaddle==2.6.2
+openai>=1.40.0
