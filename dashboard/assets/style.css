@@ -37,8 +37,28 @@ h1, h2, h3, h4, h5, h6 {
     letter-spacing: -0.02em;
 }
 
-header, #MainMenu, footer {
+#MainMenu, footer {
     visibility: hidden;
+}
+
+header {
+    background-color: transparent !important;
+}
+
+/* Make the sidebar toggle icon bright and visible */
+[data-testid="collapsedControl"] {
+    color: var(--accent-color) !important;
+    background-color: rgba(14, 165, 233, 0.1) !important;
+    border-radius: 8px;
+    padding: 0.2rem;
+    transition: all 0.2s ease;
+}
+[data-testid="collapsedControl"]:hover {
+    background-color: rgba(14, 165, 233, 0.2) !important;
+}
+[data-testid="collapsedControl"] svg {
+    fill: var(--accent-color) !important;
+    color: var(--accent-color) !important;
 }
 
 /* Sidebar */
@@ -126,24 +146,7 @@ div[data-testid="stMetricValue"] {
     margin-bottom: 4px;
 }
 
-/* Home Slide Animation */
-.home-slider {
-    position: fixed;
-    top: 0; left: 0; width: 100vw; height: 100vh;
-    z-index: -1;
-    animation: slideShow 25s infinite linear;
-    background-size: cover;
-    background-position: center;
-}
-
-@keyframes slideShow {
-    0%, 15% { background-image: linear-gradient(rgba(11, 19, 32, 0.8), rgba(11, 19, 32, 0.9)), url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=2074'); }
-    20%, 35% { background-image: linear-gradient(rgba(11, 19, 32, 0.8), rgba(11, 19, 32, 0.9)), url('https://images.unsplash.com/photo-1542296332-2e4473faf563?q=80&w=2074'); }
-    40%, 55% { background-image: linear-gradient(rgba(11, 19, 32, 0.8), rgba(11, 19, 32, 0.9)), url('https://images.unsplash.com/photo-1569154941061-e231b4732ef1?q=80&w=2074'); }
-    60%, 75% { background-image: linear-gradient(rgba(11, 19, 32, 0.8), rgba(11, 19, 32, 0.9)), url('https://images.unsplash.com/photo-1517400508447-fd821d3f9715?q=80&w=2074'); }
-    80%, 95% { background-image: linear-gradient(rgba(11, 19, 32, 0.8), rgba(11, 19, 32, 0.9)), url('https://images.unsplash.com/photo-1506012787146-f92b2d7d6d96?q=80&w=2074'); }
-    100% { background-image: linear-gradient(rgba(11, 19, 32, 0.8), rgba(11, 19, 32, 0.9)), url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=2074'); }
-}
+/* Background slideshow is handled via inline CSS in app.py render_home() */
 
 .hero-container {
     display: flex;
